@@ -1,6 +1,6 @@
 ---
 name: hamla-install
-description: Add Hamla analytics and marketing to a website or app: get a real businessId with no account and no signup form, install the tracking snippet, and send server-side events. Use when asked to add Hamla, set up Hamla tracking, or wire up analytics and marketing on a site the user is building.
+description: "Add Hamla analytics and marketing to a website or app: get a real businessId with no account and no signup form, install the tracking snippet, and send server-side events. Use when asked to add Hamla, set up Hamla tracking, or wire up analytics and marketing on a site the user is building."
 ---
 
 # Adding Hamla to a project
