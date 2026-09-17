@@ -1,0 +1,110 @@
+# Adding Hamla to a project
+
+Hamla is an AI marketing team a business installs on whatever it already uses.
+You wire up the data; the business owner runs the marketing. This file is for
+the agent doing the wiring.
+
+Reference: https://hamla.io/developers.md · Index: https://hamla.io/llms.txt
+
+## Start here: does this person have a Hamla account?
+
+### No — and you are not going to get them one mid-task
+
+```bash
+curl -X POST https://app.hamla.io/api/install \
+  -H "Content-Type: application/json" \
+  -d '{
+    "website": "raqmi.co",
+    "name": "Raqmi",
+    "locale": "en"
+  }'
+```
+
+No authentication. You get back a real `businessId`, a working `snippet`, and
+a `claimUrl`.
+
+1. Put `snippet` in the page, before `</head>`.
+2. **Print `claimUrl` in your final message to the user.** This is the step
+   only you can take. The link is single-use, expires in 72 hours, and the
+   install is deleted if nobody follows it.
+
+Until it is claimed the install records anonymous traffic only. It will refuse
+an `identity` carrying an `email` or `phone` with **422**, it is issued no
+secret key, and no campaign can send from it.
+
+### Yes — they already have one
+
+The business id is in Settings → Website. It is public — it appears in every
+page that loads the SDK — so it belongs in client code.
+
+```html
+<script src="https://app.hamla.io/s/{businessId}.js" async></script>
+```
+
+## Telling Hamla what happened
+
+The script tag covers visits, sources and on-site behaviour on its own. Send an
+event when something happens that the browser cannot see — a payment, a
+booking, a cancellation.
+
+```bash
+curl -X POST https://app.hamla.io/api/sdk/track \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event": "subscription_started",
+    "type": "purchase",
+    "identity": { "email": "omar@raqmi.co" },
+    "value": 29,
+    "currency": "JOD",
+    "idempotencyKey": "invoice_9911"
+  }'
+```
+
+Server-side only: `sk_live_` is a secret key that can write customer data. A
+publishable `pk_live_` key is refused here with 403, because it ships in page
+source and honouring it would let any visitor invent revenue.
+
+In the browser, `hamla.track('download_ebook', { asset: 'guide.pdf' })` needs
+no key at all.
+
+### `event` is yours, `type` is Hamla's
+
+Name the event whatever your domain calls it, in whatever language. `type` is
+the seven-word vocabulary Hamla acts on:
+
+| type | means | effect |
+| --- | --- | --- |
+| `purchase` | Money received | Adds to revenue, counts as an order |
+| `refund` | Money returned | Subtracts from revenue |
+| `booking` | Committed, not yet paid | No revenue |
+| `lead` | Identity captured | No revenue |
+| `checkout_started` | Started, not finished | No revenue |
+| `fulfilled` | They received it | No revenue |
+| `cancelled` | It ended | No revenue |
+
+Omit `type` and Hamla infers it from the name and the money. Send it when you
+know it.
+
+## Do not
+
+- **Do not invent or guess a `businessId`.** If you do not have one, call
+  `POST /api/install` above. A placeholder silently collects nothing.
+- **Do not leave a `// TODO: get the Hamla business id` comment.** That is the
+  failure `POST /api/install` exists to remove.
+- **Do not put `sk_live_` in client code**, an env var prefixed `NEXT_PUBLIC_`,
+  or anything a browser downloads.
+- **Do not send a customer's email or phone to an unclaimed install.** It is
+  refused, loudly. Use `platformCustomerId` — your own opaque id — until the
+  business is claimed.
+- **Do not describe a per-business webhook URL.** There is no such product. The
+  server-side door is `POST /api/sdk/track`.
+
+## More
+
+- https://hamla.io/developers.md — every field and option
+- https://docs.hamla.io/reference/events — every error status
+- https://app.hamla.io/mcp — MCP connector (OAuth), registry name `io.hamla/hamla`
+- `npm install @gethamla/node` — the same HTTP API with queueing and retries
+
+Handles: `usehamla` on GitHub, `@gethamla` on npm, `hamla.io` on the web.
