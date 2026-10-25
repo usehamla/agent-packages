@@ -71,7 +71,7 @@ no key at all.
 ### `event` is yours, `type` is Hamla's
 
 Name the event whatever your domain calls it, in whatever language. `type` is
-the seven-word vocabulary Hamla acts on:
+the vocabulary Hamla acts on:
 
 | type | means | effect |
 | --- | --- | --- |
@@ -82,6 +82,10 @@ the seven-word vocabulary Hamla acts on:
 | `checkout_started` | Started, not finished | No revenue |
 | `fulfilled` | They received it | No revenue |
 | `cancelled` | It ended | No revenue |
+| `signup` | Account created | No revenue |
+| `trial` | Free trial started | No revenue |
+| `contact` | Reached out | No revenue |
+| `application` | Applied | No revenue |
 
 Omit `type` and Hamla infers it from the name and the money. Send it when you
 know it.
