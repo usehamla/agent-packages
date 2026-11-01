@@ -120,6 +120,31 @@ the vocabulary Hamla acts on:
 Omit `type` and Hamla infers it from the name and the money. Send it when you
 know it.
 
+## Make the events start campaigns
+
+Events alone send nothing. You are not done until every moment that should
+reach someone has a campaign listening for it. Connect the MCP server
+(https://app.hamla.io/mcp, OAuth; the owner signs in), then for each such event:
+
+1. `createCampaign` with trigger `app_event`, `connectionType`
+   `hamla/events` and `eventName` exactly as your code sends it. Write the
+   message for the person in that event's `identity`.
+2. `requestCampaignLaunch`. It returns a link; the owner approves the launch
+   in Hamla. You never launch on your own.
+3. Fire the event once for a test person and confirm with `queryContacts`
+   that it reached their timeline.
+
+No MCP in your environment? Give the owner the list of events and what each
+should send, so they can ask Hamla to build them.
+
+Use the event in the message: each key of its `properties` is
+`{{event.<key>}}` (properties.appName → `{{event.appName}}`). For a
+notification about something that just happened to the person, set
+`everyTime: true` on the trigger config so every event sends its own message
+right away. Campaigns without it are paced: a limited number of automatic
+campaigns per person per day and week across the business
+(https://docs.hamla.io/reference/timing). Launching needs an active plan.
+
 ## Do not
 
 - **Do not invent or guess a `businessId`.** If you do not have one, call
