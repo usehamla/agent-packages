@@ -41,6 +41,27 @@ page that loads the SDK — so it belongs in client code.
 <script src="https://app.hamla.io/s/{businessId}.js" async></script>
 ```
 
+## When someone signs up: identify, then track
+
+Once the business is claimed and you have a secret key, call `identify` from
+the server at signup and login, before any event about that person:
+
+```bash
+curl -X POST https://app.hamla.io/api/sdk/identify \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "identity": { "email": "omar@raqmi.co", "platformCustomerId": "user_812" },
+    "profile": { "name": "Omar Al Saleh" },
+    "method": "signup"
+  }'
+```
+
+Then send the signup itself as an event (`"event": "account_created", "type":
+"signup"`). The order matters: `identify` is what records permission to
+message the person, and `track` never does. Skip it and every campaign the
+owner builds on your events reaches nobody.
+
 ## Telling Hamla what happened
 
 The script tag covers visits, sources and on-site behaviour on its own. Send an
@@ -103,6 +124,9 @@ know it.
   business is claimed.
 - **Do not describe a per-business webhook URL.** There is no such product. The
   server-side door is `POST /api/sdk/track`.
+- **Do not record a signup with `track` alone.** Call `POST /api/sdk/identify`
+  first. A contact created only by an event has no permission on record, and no
+  campaign will message them.
 
 ## More
 
