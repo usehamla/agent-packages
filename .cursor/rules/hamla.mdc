@@ -67,6 +67,10 @@ Then send the signup itself as an event (`"event": "account_created", "type":
 message the person, and `track` never does. Skip it and every campaign the
 owner builds on your events reaches nobody.
 
+Check it: read `data.warnings` in the `track` response. If it contains
+"campaigns will not reach this contact", `identify` was skipped for that
+person. Fix that before you report the integration as done.
+
 ## Telling Hamla what happened
 
 The script tag covers visits, sources and on-site behaviour on its own. Send an
