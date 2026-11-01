@@ -123,9 +123,10 @@ know it.
   failure `POST /api/install` exists to remove.
 - **Do not put `sk_live_` in client code**, an env var prefixed `NEXT_PUBLIC_`,
   or anything a browser downloads.
-- **Do not send a customer's email or phone to an unclaimed install.** It is
-  refused, loudly. Use `platformCustomerId` — your own opaque id — until the
-  business is claimed.
+- **Do not wire up identify or track until the business is claimed.** Before
+  the claim no contact is stored: an email or phone is refused with 422 and your
+  own `platformCustomerId` with 403. Add the snippet, print the claim link,
+  and add the server calls once the owner has claimed it and created a key.
 - **Do not describe a per-business webhook URL.** There is no such product. The
   server-side door is `POST /api/sdk/track`.
 - **Do not record a signup with `track` alone.** Call `POST /api/sdk/identify`
