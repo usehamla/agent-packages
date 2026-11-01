@@ -133,12 +133,12 @@ No MCP in your environment? Give the owner the list of events and what each
 should send, so they can ask Hamla to build them.
 
 Use the event in the message: each key of its `properties` is
-`{{event.<key>}}` (properties.appName → `{{event.appName}}`). For a
-notification about something that just happened to the person, set
-`everyTime: true` on the trigger config so every event sends its own message
-right away. Campaigns without it are paced: a limited number of automatic
+`{{event.<key>}}` (properties.appName → `{{event.appName}}`). Each event
+sends its own message, right away, every time it happens. Campaigns that start
+from a segment or a schedule are paced: a limited number of automatic
 campaigns per person per day and week across the business
-(https://docs.hamla.io/reference/timing). Launching needs an active plan.
+(https://docs.hamla.io/reference/timing), so start a promotion that should
+wait its turn from a segment. Launching needs an active plan.
 
 ## Do not
 
