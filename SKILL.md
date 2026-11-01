@@ -67,6 +67,11 @@ Then send the signup itself as an event (`"event": "account_created", "type":
 message the person, and `track` never does. Skip it and every campaign the
 owner builds on your events reaches nobody.
 
+Do both in the request that creates the account, for every way an account is
+created (email, Google, Apple, an invite), not on the person's first action:
+someone who signs up and leaves must still reach Hamla. If you queue these
+calls, send the queue right after that request and retry anything left waiting.
+
 Check it: read `data.warnings` in the `track` response. If it contains
 "campaigns will not reach this contact", `identify` was skipped for that
 person. Fix that before you report the integration as done.
@@ -138,7 +143,12 @@ No MCP in your environment? Give the owner the list of events and what each
 should send, so they can ask Hamla to build them.
 
 Use the event in the message: each key of its `properties` is
-`{{event.<key>}}` (properties.appName → `{{event.appName}}`). Each event
+`{{event.<key>}}` (properties.appName → `{{event.appName}}`). Send every
+property a message will show from the first version (the other person's first
+name, the item, a link): a campaign is checked against the latest real event,
+so a property added later can't be used until an event carrying it arrives. A
+link property must always have a value; send a general page when there is
+nothing specific. Each event
 sends its own message, right away, every time it happens. Campaigns that start
 from a segment or a schedule are paced: a limited number of automatic
 campaigns per person per day and week across the business
@@ -159,6 +169,9 @@ wait its turn from a segment. Launching needs an active plan.
   and add the server calls once the owner has claimed it and created a key.
 - **Do not describe a per-business webhook URL.** There is no such product. The
   server-side door is `POST /api/sdk/track`.
+- **Do not report done from `success: true` alone.** Sign up a brand-new
+  account through each sign-up path and do nothing else; each must appear in
+  Hamla within a minute.
 - **Do not record a signup with `track` alone.** Call `POST /api/sdk/identify`
   first. A contact created only by an event has no permission on record, and no
   campaign will message them.
